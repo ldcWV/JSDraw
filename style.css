@@ -1,0 +1,14 @@
+*{
+    margin: 0;
+    padding: 0;
+}
+
+canvas{
+    /* black border around canvas */
+    border: 1px solid black;
+    /* center canvas */
+    display: block;
+    margin: 0 auto;
+    /* small margin at top of canvas */
+    margin-top: 20px;
+}
