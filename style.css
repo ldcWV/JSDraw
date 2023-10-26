@@ -11,4 +11,6 @@ canvas{
     margin: 0 auto;
     /* small margin at top of canvas */
     margin-top: 20px;
+    /* allow stylus to work */
+    touch-action: none;
 }

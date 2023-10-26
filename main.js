@@ -1,4 +1,3 @@
-// Credit to https://dev.to/0shuvo0/lets-create-a-drawing-app-with-js-4ej3 for starter code
 const canvas = document.getElementById("canvas")
 canvas.height = 400
 canvas.width = 600
@@ -6,11 +5,11 @@ const ctx = canvas.getContext("2d")
 ctx.fillStyle = 'white'
 ctx.fillRect(0, 0, canvas.width, canvas.height)
 let rect = canvas.getBoundingClientRect()
-ctx.lineWidth = 6
 
 let maxDistancePerStroke = 100
 
 // Pen state
+let prevPressure = -1
 let prevX = null
 let prevY = null
 let penDown = false
@@ -23,20 +22,13 @@ function isInCanvas(point) {
     return point.x > rect.left && point.x < rect.right && point.y > rect.top && point.y < rect.bottom
 }
 
-function drawPoint(coords) {
+function drawLine(start, end, pressure) {
     ctx.beginPath()
-    ctx.arc(coords.x, coords.y, ctx.lineWidth/2, 0, 2 * Math.PI)
-    ctx.fillStyle = 'black'
-    ctx.fill()
-}
-
-function drawLine(start, end) {
-    drawPoint(start)
-    ctx.beginPath()
+    ctx.lineWidth = pressure * 10
+    ctx.lineCap = "round"
     ctx.moveTo(start.x, start.y)
     ctx.lineTo(end.x, end.y)
     ctx.stroke()
-    drawPoint(end)
 }
 
 function mouseMoveHandler(e) {
@@ -66,9 +58,9 @@ function mouseMoveHandler(e) {
     }
 
     // Draw line
-    drawLine({ x: prevX, y: prevY }, { x: nextX, y: nextY })
+    drawLine({ x: prevX, y: prevY }, { x: nextX, y: nextY }, e.pressure)
     // Update currentTrajectory
-    currentTrajectory.push([nextX, nextY])
+    currentTrajectory.push([nextX, nextY, e.pressure])
     distanceDrawn += deltaDistance
     prevX = nextX
     prevY = nextY
@@ -87,11 +79,8 @@ function mouseDownHandler(e) {
     prevX = e.clientX - rect.left
     prevY = e.clientY - rect.top
 
-    // Draw point at beginning of line
-    drawPoint({ x: prevX, y: prevY })
-
     // Update current trajectory
-    currentTrajectory.push([prevX, prevY])
+    currentTrajectory.push([prevX, prevY, e.pressure])
 }
 
 function mouseUpHandler(e) {
@@ -99,7 +88,7 @@ function mouseUpHandler(e) {
     prevX = null
     prevY = null
 
-    if (currentTrajectory.length > 0) {
+    if (currentTrajectory.length >= 2) {
         trajectories.push(currentTrajectory)
         currentTrajectory = []
     }
@@ -113,16 +102,26 @@ function clear() {
 }
 
 // Pen status handlers
-window.addEventListener("mousemove", mouseMoveHandler)
-window.addEventListener("mousedown", mouseDownHandler)
-window.addEventListener("mouseup", mouseUpHandler)
+canvas.onpointermove = event => {
+    if (event.pressure > 0) {
+        if (prevPressure <= 0) {
+            mouseDownHandler(event);
+        }
+        mouseMoveHandler(event);
+    } else {
+        if (prevPressure > 0) {
+            mouseUpHandler(event);
+        }
+    }
+    prevPressure = event.pressure
+}
 
 // Call clear function when button is pressed
 document.getElementById("clear").addEventListener("click", clear)
 
+// -------------------------- Download buttons --------------------------
 // Download image button
 document.getElementById("download_image").addEventListener("click", downloadImage)
-
 function downloadImage() {
     // Download image of canvas as png
     var dataURL = canvas.toDataURL("image/png")
@@ -138,7 +137,6 @@ function downloadImage() {
 
 // Download trajectories button
 document.getElementById("download_trajectories").addEventListener("click", downloadTrajectories)
-
 function downloadTrajectories() {
     // Download trajectories as json
     const json = JSON.stringify(trajectories, null, 4);
