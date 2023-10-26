@@ -1,6 +1,6 @@
 const canvas = document.getElementById("canvas")
 canvas.height = 400
-canvas.width = 600
+canvas.width = 400
 const ctx = canvas.getContext("2d")
 ctx.fillStyle = 'white'
 ctx.fillRect(0, 0, canvas.width, canvas.height)
@@ -60,7 +60,7 @@ function mouseMoveHandler(e) {
     // Draw line
     drawLine({ x: prevX, y: prevY }, { x: nextX, y: nextY }, e.pressure)
     // Update currentTrajectory
-    currentTrajectory.push([nextX, nextY, e.pressure])
+    currentTrajectory.push([nextX/canvas.width, nextY/canvas.height, e.pressure])
     distanceDrawn += deltaDistance
     prevX = nextX
     prevY = nextY
@@ -80,7 +80,7 @@ function mouseDownHandler(e) {
     prevY = e.clientY - rect.top
 
     // Update current trajectory
-    currentTrajectory.push([prevX, prevY, e.pressure])
+    currentTrajectory.push([prevX/canvas.width, prevY/canvas.height, e.pressure])
 }
 
 function mouseUpHandler(e) {
