@@ -22,6 +22,11 @@ function isInCanvas(point) {
     return point.x > rect.left && point.x < rect.right && point.y > rect.top && point.y < rect.bottom
 }
 
+function updateTrajectoryCounter() {
+    document.getElementById('trajectory_counter').innerText = `Trajectories: ${trajectories.length}`;
+}
+updateTrajectoryCounter();
+
 function drawLine(start, end, pressure) {
     ctx.beginPath()
     ctx.lineWidth = pressure * 10
@@ -92,6 +97,8 @@ function mouseUpHandler(e) {
         trajectories.push(currentTrajectory)
         currentTrajectory = []
     }
+
+    updateTrajectoryCounter();
 }
 
 function clear() {
@@ -99,6 +106,7 @@ function clear() {
     ctx.fillStyle = 'white'
     ctx.fillRect(0, 0, canvas.width, canvas.height)
     trajectories = []
+    updateTrajectoryCounter();
 }
 
 // Pen status handlers
