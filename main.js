@@ -141,6 +141,9 @@ function downloadImage() {
 
     // Trigger the download
     link.click()
+
+    // Clean up
+    URL.revokeObjectURL(dataURL)
 }
 
 // Download trajectories button
